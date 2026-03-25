@@ -1,0 +1,44 @@
+{
+  "users": [
+    {
+      "id": "924bad49-fe37-49d3-89a3-b7084af11023",
+      "name": "Police Officer",
+      "email": "police@guardian.com",
+      "password": "$2a$10$8Rx/GMr91CJQz9g/OmmRdePTicqxBdq/RoxJnKx0E0HYr/0Qngb3u",
+      "role": "police",
+      "createdAt": "2026-03-21T08:35:12.187Z"
+    },
+    {
+      "id": "d029b563-a2e2-46f2-86c9-8fe20588fcc9",
+      "name": "Test User",
+      "email": "user@guardian.com",
+      "password": "$2a$10$j2xyzgYfsVjNyBhesL49kOyYzzXc9atyF2NuaS93/4x5QErBpBsHe",
+      "role": "user",
+      "createdAt": "2026-03-21T08:35:12.264Z"
+    },
+    {
+      "id": "1b09e135-10cc-4ee0-9560-20b9a10ba07f",
+      "name": "BRAGATHEESH V",
+      "email": "vbragatheesh@gmail.com",
+      "password": "$2a$10$eiY5xA/S6UdCyypNwjmV2.mhdG32viCwt4LXTql3/bE84OJ6b.0tq",
+      "role": "user",
+      "createdAt": "2026-03-21T08:42:39.538Z"
+    },
+    {
+      "id": "24e660e5-81a6-499e-aec1-e5f4dba1e442",
+      "name": "bragee",
+      "email": "bragatheeshv@gmail.com",
+      "password": "$2a$10$ZSjVjfsrBtIFwFMnQfaiTOSdmbBXT4uKZZ8jaZ.AKMu9Oz0Wbn/C2",
+      "role": "police",
+      "createdAt": "2026-03-21T09:20:13.562Z"
+    },
+    {
+      "id": "fe1ace51-e74e-4609-a9c3-5fedffbd1aeb",
+      "name": "bragee",
+      "email": "use@guardian.com",
+      "password": "$2a$10$My/7lGdjlQqNnhdWvWthvOeT5Fs/tPE7N2KNYFiquncpP/xgLdQM.",
+      "role": "police",
+      "createdAt": "2026-03-25T03:04:13.846Z"
+    }
+  ]
+}

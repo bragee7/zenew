@@ -1,0 +1,89 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  font-family: 'Inter', sans-serif;
+  @apply bg-gray-50;
+}
+
+.sos-button {
+  @apply relative overflow-hidden;
+}
+
+.sos-button::before {
+  content: '';
+  @apply absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent;
+  transform: translateX(-100%);
+  animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.glass-effect {
+  @apply bg-white bg-opacity-10 backdrop-blur-lg border border-white border-opacity-20;
+}
+
+.status-pulse {
+  animation: statusPulse 2s ease-in-out infinite;
+}
+
+@keyframes statusPulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.countdown-number {
+  @apply text-9xl font-bold text-white;
+  text-shadow: 0 0 50px rgba(220, 38, 38, 0.8);
+}
+
+.recording-indicator {
+  @apply flex items-center space-x-2;
+}
+
+.recording-indicator::before {
+  content: '';
+  @apply w-3 h-3 bg-red-500 rounded-full;
+  animation: blink 1s ease-in-out infinite;
+}
+
+@keyframes blink {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.3;
+  }
+}
+
+.case-card {
+  @apply transition-all duration-300 hover:shadow-xl hover:scale-102;
+}
+
+.case-card:hover {
+  transform: scale(1.02);
+}
+
+.alert-flash {
+  animation: alertFlash 0.5s ease-in-out infinite;
+}
+
+@keyframes alertFlash {
+  0%, 100% {
+    background-color: #DC2626;
+  }
+  50% {
+    background-color: #F87171;
+  }
+}
