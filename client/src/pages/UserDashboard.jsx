@@ -8,6 +8,7 @@ const UserDashboard = () => {
   const [countdown, setCountdown] = useState(null);
   const [recordingTime, setRecordingTime] = useState(30);
   const [isListening, setIsListening] = useState(false);
+  const [autoStartAttempted, setAutoStartAttempted] = useState(false);
   const [location, setLocation] = useState(null);
   const [locationLink, setLocationLink] = useState('');
   const [error, setError] = useState('');
@@ -24,8 +25,89 @@ const UserDashboard = () => {
   const recognitionRef = useRef(null);
   const audioContextRef = useRef(null);
 
+  const startVoiceRecognition = async () => {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    
+    if (!SpeechRecognition) {
+      setError('Speech recognition is not supported in your browser. Please use Chrome.');
+      return;
+    }
+
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      stream.getTracks().forEach(track => track.stop());
+    } catch (err) {
+      console.error('Microphone permission error:', err);
+      setError('Microphone permission denied. Please allow microphone access in your browser settings, then refresh and try again.');
+      return;
+    }
+
+    const recognition = new SpeechRecognition();
+    recognition.continuous = true;
+    recognition.interimResults = false;
+    recognition.lang = 'en-US';
+
+    recognition.onresult = (event) => {
+      const last = event.results.length - 1;
+      const command = event.results[last][0].transcript.toLowerCase().trim();
+      
+      console.log('Voice command detected:', command);
+      
+      if (command.includes('help me') || 
+          command.includes('emergency') || 
+          command.includes('save me') ||
+          command.includes('help me!') ||
+          command.includes('save me!') ||
+          command.includes('emergency!')) {
+        triggerSOS();
+      }
+    };
+
+    recognition.onerror = (event) => {
+      console.error('Speech recognition error:', event.error);
+      
+      if (event.error === 'not-allowed') {
+        setError('Microphone access denied. Please allow microphone permission in your browser settings and refresh the page.');
+        setStatus('Mic Denied');
+        setAutoStartAttempted(true);
+        return;
+      }
+      
+      if (event.error !== 'no-speech' && isListening) {
+        setTimeout(() => {
+          if (isListening) startVoiceRecognition();
+        }, 1000);
+      }
+    };
+
+    recognition.onend = () => {
+      if (isListening) {
+        try {
+          recognition.start();
+        } catch (e) {
+          console.error('Recognition restart error:', e);
+        }
+      }
+    };
+
+    recognition.start();
+    recognitionRef.current = recognition;
+    setIsListening(true);
+    setStatus('Listening');
+  };
+
+  const stopVoiceRecognition = () => {
+    if (recognitionRef.current) {
+      recognitionRef.current.stop();
+      recognitionRef.current = null;
+    }
+    setIsListening(false);
+    setStatus('Idle');
+  };
+
   useEffect(() => {
-    getLocation();
+    getLocation().then(() => {});
+    startVoiceRecognition();
     return () => {
       if (videoStreamRef.current) {
         videoStreamRef.current.getTracks().forEach(track => track.stop());
@@ -37,23 +119,29 @@ const UserDashboard = () => {
   }, []);
 
   const getLocation = () => {
-    if (!navigator.geolocation) {
-      setError('Geolocation is not supported by your browser');
-      return;
-    }
+    return new Promise((resolve) => {
+      if (!navigator.geolocation) {
+        setError('Geolocation is not supported by your browser');
+        resolve(null);
+        return;
+      }
 
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const { latitude, longitude } = position.coords;
-        setLocation({ latitude, longitude });
-        setLocationLink(`https://www.google.com/maps?q=${latitude},${longitude}`);
-      },
-      (err) => {
-        setError('Unable to retrieve your location');
-        console.error('Location error:', err);
-      },
-      { enableHighAccuracy: true, timeout: 10000 }
-    );
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          const newLocationLink = `https://www.google.com/maps?q=${latitude},${longitude}`;
+          setLocation({ latitude, longitude });
+          setLocationLink(newLocationLink);
+          resolve(newLocationLink);
+        },
+        (err) => {
+          setError('Unable to retrieve your location');
+          console.error('Location error:', err);
+          resolve(null);
+        },
+        { enableHighAccuracy: true, timeout: 10000 }
+      );
+    });
   };
 
   const playAlertSound = () => {
@@ -86,68 +174,6 @@ const UserDashboard = () => {
     } catch (err) {
       console.error('Error playing alert sound:', err);
     }
-  };
-
-  const startVoiceRecognition = () => {
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    
-    if (!SpeechRecognition) {
-      setError('Speech recognition is not supported in your browser. Please use Chrome.');
-      return;
-    }
-
-    const recognition = new SpeechRecognition();
-    recognition.continuous = true;
-    recognition.interimResults = false;
-    recognition.lang = 'en-US';
-
-    recognition.onresult = (event) => {
-      const last = event.results.length - 1;
-      const command = event.results[last][0].transcript.toLowerCase().trim();
-      
-      console.log('Voice command detected:', command);
-      
-      if (command.includes('help me') || 
-          command.includes('emergency') || 
-          command.includes('save me') ||
-          command.includes('help me!') ||
-          command.includes('save me!') ||
-          command.includes('emergency!')) {
-        triggerSOS();
-      }
-    };
-
-    recognition.onerror = (event) => {
-      console.error('Speech recognition error:', event.error);
-      if (event.error !== 'no-speech' && isListening) {
-        setTimeout(() => {
-          if (isListening) startVoiceRecognition();
-        }, 1000);
-      }
-    };
-
-    recognition.onend = () => {
-      if (isListening) {
-        try {
-          recognition.start();
-        } catch (e) {
-          console.error('Recognition restart error:', e);
-        }
-      }
-    };
-
-    recognition.start();
-    recognitionRef.current = recognition;
-    setIsListening(true);
-    setStatus('Listening');
-  };
-
-  const stopVoiceRecognition = () => {
-    if (recognitionRef.current) {
-      recognitionRef.current.stop();
-      recognitionRef.current = null;
-    }
-    setIsListening(false);
   };
 
   const startRecording = async () => {
@@ -242,25 +268,9 @@ const UserDashboard = () => {
       const audioFile = new File([videoBlob], 'emergency-audio.webm', { type: 'video/webm' });
       formData.append('audio', audioFile);
       
-      if (!locationLink) {
-        await new Promise((resolve) => {
-          navigator.geolocation.getCurrentPosition(
-            (position) => {
-              const { latitude, longitude } = position.coords;
-              const newLocationLink = `https://www.google.com/maps?q=${latitude},${longitude}`;
-              formData.append('locationLink', newLocationLink);
-              resolve();
-            },
-            () => {
-              formData.append('locationLink', '');
-              resolve();
-            },
-            { enableHighAccuracy: true, timeout: 5000 }
-          );
-        });
-      } else {
-        formData.append('locationLink', locationLink);
-      }
+      const freshLocationLink = await getLocation();
+      formData.append('locationLink', freshLocationLink || '');
+      
       formData.append('notes', `SOS Alert from ${user?.name} at ${new Date().toLocaleString()}`);
 
       console.log('Sending SOS data...', {
@@ -291,12 +301,12 @@ const UserDashboard = () => {
     }
   };
 
-  const triggerSOS = () => {
-    if (status !== 'Idle') return;
+  const triggerSOS = async () => {
+    if (status !== 'Idle' && status !== 'Listening') return;
     
     playAlertSound();
     stopVoiceRecognition();
-    getLocation();
+    await getLocation();
     setStatus('Countdown');
     setCountdown(3);
 
@@ -447,39 +457,25 @@ const UserDashboard = () => {
           )}
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+        <div className="mb-6">
+          <div className="flex items-center justify-center space-x-2 text-green-400 bg-green-900/30 py-3 rounded-xl mb-4">
+            <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+            <span className="font-medium">Voice Protection Active - Listening for "Help Me", "Emergency", or "Save Me"</span>
+          </div>
+
           <button
             onClick={triggerSOS}
-            disabled={status !== 'Idle'}
-            className={`sos-button bg-gradient-to-br from-red-600 via-red-500 to-pink-600 
+            disabled={false}
+            className="sos-button bg-gradient-to-br from-red-600 via-red-500 to-pink-600 
               hover:from-red-700 hover:via-red-600 hover:to-pink-700 
               text-white font-bold text-2xl py-12 px-8 rounded-2xl 
-              shadow-2xl transform transition-all ${status === 'Idle' ? 'hover:scale-105 animate-glow' : 'opacity-50 cursor-not-allowed'}`}
+              shadow-2xl transform transition-all w-full hover:scale-105 animate-glow"
           >
             <div className="flex flex-col items-center space-y-4">
               <svg className="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
               </svg>
               <span>SEND SOS ALERT</span>
-            </div>
-          </button>
-
-          <button
-            onClick={handleStartListening}
-            disabled={isRecording || status === 'Sending'}
-            className={`bg-gradient-to-br from-blue-600 to-blue-800 
-              hover:from-blue-700 hover:to-blue-900 
-              text-white font-bold text-xl py-12 px-8 rounded-2xl 
-              shadow-xl transform transition-all ${!isListening ? 'hover:scale-105' : 'scale-95'} ${isRecording || status === 'Sending' ? 'opacity-50 cursor-not-allowed' : ''}`}
-          >
-            <div className="flex flex-col items-center space-y-4">
-              <svg className={`w-16 h-16 ${isListening ? 'animate-pulse' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
-              </svg>
-              <span>{isListening ? 'STOP LISTENING' : 'START LISTENING'}</span>
-              <span className="text-sm font-normal">
-                Say "Help Me", "Emergency", or "Save Me"
-              </span>
             </div>
           </button>
         </div>
@@ -516,7 +512,7 @@ const UserDashboard = () => {
               <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-3">
                 <span className="text-white font-bold">1</span>
               </div>
-              <p className="text-gray-300 text-sm">Click "Start Listening" to enable voice trigger</p>
+              <p className="text-gray-300 text-sm">Voice recognition is always active in background</p>
             </div>
             <div className="text-center p-4">
               <div className="w-12 h-12 bg-yellow-600 rounded-full flex items-center justify-center mx-auto mb-3">

@@ -6,15 +6,13 @@ A comprehensive women safety emergency response system with real-time SOS alerts
 ## Features
 
 ### User (Victim) Dashboard
+- 🚨 **Voice Auto-Start** - Voice recognition automatically starts when user logs in
 - 🚨 **Voice Trigger Detection** - Continuously listens for "Help Me", "Emergency", or "Save Me"
 - 🎥 **Automatic Video Recording** - 30-second emergency recording using MediaRecorder API
-- 📍 **Location Capture** - Automatic GPS location with Google Maps link
+- 📍 **Fresh Location Capture** - GPS location captured at time of SOS trigger
 - 🔊 **Alert Sound** - Audio notification when emergency is triggered
 - ⏱️ **Countdown Timer** - 3-2-1 countdown before recording starts
 - 💾 **Local Backup** - Save recordings to your device
-  - Download video and audio files to your computer
-  - Preview recordings before downloading
-  - Automatic local storage after recording
 - 📱 **Media Preview** - Watch and listen to your recordings immediately
 
 ### Police Dashboard
@@ -82,12 +80,13 @@ Open browser: http://localhost:3000
 
 ### For Users (Victims)
 1. Register or login with your credentials
-2. Click "Start Listening" to enable voice detection
+2. Voice recognition automatically starts when you log in - no manual activation needed
 3. Say "Help Me", "Emergency", or "Save Me" to trigger SOS
-4. Alternatively, click the large "SEND SOS ALERT" button
-5. Recording will start after 3-second countdown
-6. Your location, video, and audio will be sent to police
-7. **Save to Device**: After recording, download your video and audio files directly to your device
+4. Alternatively, click the large "SEND SOS ALERT" button anytime
+5. Your current location will be captured at time of alert
+6. Recording will start after 3-second countdown
+7. Your location, video, and audio will be sent to police
+8. **Save to Device**: After recording, download your video and audio files directly to your device
    - Preview recordings in the app
    - Click "Download Video" or "Download Audio" buttons
    - Click "Download All Files" to save both at once
