@@ -14,7 +14,7 @@ const corsOptions = {
     const allowedOrigins = [
       'http://localhost:3000',
       'http://localhost:5173',
-      'https://your-frontend.vercel.app'
+      'https://zenew1.vercel.app'
     ];
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
