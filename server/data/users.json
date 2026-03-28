@@ -4,7 +4,7 @@
       "id": "924bad49-fe37-49d3-89a3-b7084af11023",
       "name": "Police Officer",
       "email": "police@guardian.com",
-      "password": "$2a$10$8Rx/GMr91CJQz9g/OmmRdePTicqxBdq/RoxJnKx0E0HYr/0Qngb3u",
+      "password": "$2a$10$bfA8EVj4PtNoPtWQNWOGyehpzoTH0Hp3p9nWIm4F2UI.swU0vJe9e",
       "role": "police",
       "createdAt": "2026-03-21T08:35:12.187Z"
     },
@@ -12,7 +12,7 @@
       "id": "d029b563-a2e2-46f2-86c9-8fe20588fcc9",
       "name": "Test User",
       "email": "user@guardian.com",
-      "password": "$2a$10$j2xyzgYfsVjNyBhesL49kOyYzzXc9atyF2NuaS93/4x5QErBpBsHe",
+      "password": "$2a$10$YeExqZbWQrhCxnLe7Bafru5/9tAudCRjm1s2FnSjRVah6yVmJIIFG",
       "role": "user",
       "createdAt": "2026-03-21T08:35:12.264Z"
     },
